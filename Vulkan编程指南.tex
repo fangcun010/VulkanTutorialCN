@@ -1202,7 +1202,7 @@ Vulkan可以使用两种不同类型的校验层：实例校验层和设备校�
 
 \subsection{使用校验层}
 
-在本章节，我们将使用LunarG的Vulkan SDK提供的校验层。和使用扩展一样，使用校验层需要指定校验层的名称。LunarG的Vulkan SDK允许我们通过VK\_LAYER\_LUNARG\_standard\_validation来隐式地开启所有可用的校验层。
+在本章节，我们将使用LunarG的Vulkan SDK提供的校验层。和使用扩展一样，使用校验层需要指定校验层的名称。LunarG的Vulkan SDK允许我们通过VK\_LAYER\_KHRONOS\_validation来隐式地开启所有可用的校验层。
 
 首先，让我们添加两个变量到程序中来控制是否启用指定的校验层。这里，我们通过条件编译来设定是否启用校验层。代码中的NDEBUG宏是C++标准的一部分，表示是否处于非调试模式下：
 
@@ -1211,7 +1211,7 @@ const int WIDTH = 800;
 const int HEIGHT = 600;
 
 const std::vector<const char*> validationLayers = {
-	"VK_LAYER_LUNARG_standard_validation"
+	"VK_LAYER_KHRONOS_validation"
 };
 
 #ifdef NDEBUG
