@@ -1576,7 +1576,7 @@ vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
 有关设备内存和队列族信息的获取，我们会在下一节说明。
 
-现在，假设我们的应用程序只有在显卡支持集合着色器的情况下才可以运行，那么我们的isDeviceSuitable函数看起来会像这样：
+现在，假设我们的应用程序只有在显卡支持几何着色器的情况下才可以运行，那么我们的isDeviceSuitable函数看起来会像这样：
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 bool isDeviceSuitable(VkPhysicalDevice device) {
