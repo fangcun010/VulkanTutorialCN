@@ -4790,8 +4790,89 @@ const std::vector<Vertex> vertices = {
 
 \subsection{绑定描述}
 
-定义好顶点数据，我们需要将CPU缓冲(也就是我们定义的Vertex结构体数组)中顶点数据的存放方式传递给GPU，以便GPU可以正确地加载这些数据到显存中。
-我们给Vertex结构体添加一个叫做getBindingDescription的静态成员函数，在里面编写代码返回Vertex结构体的顶点数据存放方式：
+下一步是告诉 Vulkan 如何在将数据上传到 GPU 内存后将这种数据格式传递给顶点着色器。需要两种结构体来传达这些信息。第一个结构体是 VkVertexInputBindingDescription，我们将添加一个成员函数到 Vertex 结构体，以填充正确的数据。
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+struct Vertex {
+	glm::vec2 pos;
+	glm::vec3 color;
+
+	static VkVertexInputBindingDescription getBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription{};
+
+		return bindingDescription;
+	}
+};
+\end{lstlisting}
+
+顶点绑定描述了在整个顶点期间以何种速率从内存中加载数据。它指定了数据条目之间的字节数，以及是在每个顶点之后还是在每个实例之后移动到下一个数据条目。
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+	VkVertexInputBindingDescription bindingDescription{};
+	bindingDescription.binding = 0;
+	bindingDescription.stride = sizeof(Vertex);
+	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;	
+\end{lstlisting}
+
+我们的每个顶点的数据都打包在一个数组中，因此我们只会有一个绑定。binding 参数指定了绑定在绑定数组中的索引。stride 参数指定了从一个条目到下一个条目的字节数，inputRate 参数可以有以下值之一：
+\begin{itemize}
+	\item VK\_VERTEX\_INPUT\_RATE\_VERTEX：在每个顶点之后移动到下一个数据条目
+	\item VK\_VERTEX\_INPUT\_RATE\_INSTANCE: 在每个实例之后移动到下一个数据条目
+\end{itemize}
+我们不会使用实例化渲染，所以我们将坚持使用每个顶点数据
+
+\subsection{属性描述}
+第二个描述如何处理顶点输入的结构体是 VkVertexInputAttributeDescription。我们将为 Vertex 添加另一个辅助函数来填充这些结构体。
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+#include <array>
+
+...
+
+static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+	std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+	return attributeDescriptions;
+}
+\end{lstlisting}
+如函数原型所示，将会有两个这样的结构体。属性描述结构体描述了如何从源自绑定描述的一块顶点数据中提取顶点属性。我们有两个属性：位置和颜色，因此我们需要两个属性描述结构体。
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+	attributeDescriptions[0].binding = 0;
+	attributeDescriptions[0].location = 0;
+	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+	attributeDescriptions[0].offset = offsetof(Vertex, pos);
+\end{lstlisting}
+binding 参数告诉 Vulkan 每个顶点的数据来自哪个绑定。location 参数引用了顶点着色器输入的定位指令。顶点着色器中位置为 0 的输入是位置，包含两个 32 位浮点分量。format 参数描述了属性的数据类型。稍微有点混乱的是，这些格式使用与颜色格式相同的枚举。以下是常用的着色器类型和格式：
+\begin{itemize}
+	\item float: VK\_FORMAT\_R32\_SFLOAT
+	\item vec2: VK\_FORMAT\_R32G32\_SFLOAT
+	\item vec3: VK\_FORMAT\_R32G32B32\_SFLOAT
+	\item vec4: VK\_FORMAT\_R32G32B32A32\_SFLOAT
+\end{itemize}
+如你所见，应使用颜色通道数与着色器数据类型中分量数量匹配的格式。可以使用比着色器分量数量更多的通道，但它们会被静默丢弃。如果通道数量少于分量数量，那么 BGA 分量将使用默认值 (0, 0, 1)。颜色类型（SFLOAT、UINT、SINT）和位宽也应与着色器输入类型匹配。以下是一些示例：
+\begin{itemize}
+	\item ivec2: VK\_FORMAT\_R32G32\_SINT，一个 2 分量的 32 位有符号整数向量
+	\item uvec4: VK\_FORMAT\_R32G32B32A32\_UINT，一个 4 分量的 32 位无符号整数向量
+	\item double: VK\_FORMAT\_R64\_SFLOAT，一个双精度（64 位）浮点数
+\end{itemize}
+format 参数隐式定义了属性数据的字节大小，offset 参数指定了从每顶点数据起始位置读取的字节数。绑定一次加载一个 Vertex，位置属性 (pos) 从该结构体开始处的偏移量为 0 字节。这是使用 offsetof 宏自动计算的。
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+	attributeDescriptions[1].binding = 0;
+	attributeDescriptions[1].location = 1;
+	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[1].offset = offsetof(Vertex, color);	
+\end{lstlisting}
+颜色属性的描述方式大致相同。
+
+\subsection{管线顶点输入}
+现在我们需要设置图形管线，以引用 createGraphicsPipeline 中的结构体来接受这种格式的顶点数据。找到 vertexInputInfo 结构体并修改它，以引用这两个描述：
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+	auto bindingDescription = Vertex::getBindingDescription();
+	auto attributeDescriptions = Vertex::getAttributeDescriptions();
+	
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();	
+\end{lstlisting}
+现在，管线已经准备好接受顶点容器格式的顶点数据并将其传递给顶点着色器。如果现在启用验证层运行程序，您会看到它抱怨没有绑定顶点缓冲区到绑定。下一步是创建一个顶点缓冲区并将顶点数据移动到该缓冲区，以便 GPU 能够访问它。
 
 本章节代码：
 
@@ -6253,7 +6334,7 @@ vkBindImageMemory(device, textureImage, textureImageMemory, 0);
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
-	AVkImageCreateInfo imageInfo = {};
+	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	imageInfo.imageType = VK_IMAGE_TYPE_2D;
 	imageInfo.extent.width = width;
