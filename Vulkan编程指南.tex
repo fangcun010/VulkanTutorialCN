@@ -5120,7 +5120,7 @@ vkUnmapMemory(device, vertexBufferMemory);
 
 \subsection{绑定顶点缓冲}
 
-扩展createCommandBuffers函数，使用顶点缓冲进行渲染操作：
+扩展recordCommandBuffer函数，使用顶点缓冲进行渲染操作：
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 vkCmdBindPipeline(commandBuffers[i],
@@ -5490,7 +5490,7 @@ void cleanup() {
 
 \subsection{使用索引缓冲}
 
-使用索引缓冲进行绘制操作，还需要对我们之前编写的createCommandBuffers函数进行修改。首先我们需要将索引缓冲对象绑定到指令缓冲对象上，这和绑定顶点缓冲基本类似，不同之处是我们只能绑定一个索引缓冲对象。我们不能为每个顶点属性使用不同的索引，所以即使只有一个顶点属性不同，也要在顶点缓冲中多出一个顶点的数据。
+使用索引缓冲进行绘制操作，还需要对我们之前编写的recordCommandBuffer函数进行修改。首先我们需要将索引缓冲对象绑定到指令缓冲对象上，这和绑定顶点缓冲基本类似，不同之处是我们只能绑定一个索引缓冲对象。我们不能为每个顶点属性使用不同的索引，所以即使只有一个顶点属性不同，也要在顶点缓冲中多出一个顶点的数据。
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -6048,7 +6048,7 @@ vkUpdateDescriptorSets函数可以接受两个数组作为参数：VkWriteDescri
 
 \subsection{使用描述符集}
 
-现在修改createCommandBuffers函数为每个交换链图像绑定对应的描述符集。这需要调用cmdBindDescriptorSets函数来完成，我们在调用vkCmdDrawIndexed函数之前调用这一函数：
+现在修改recordCommandBuffer函数为每个交换链图像绑定对应的描述符集。这需要调用cmdBindDescriptorSets函数来完成，我们在调用vkCmdDrawIndexed函数之前调用这一函数：
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 vkCmdBindDescriptorSets(commandBuffers[i],
