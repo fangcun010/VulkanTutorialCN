@@ -3855,6 +3855,13 @@ level成员变量用于指定分配的指令缓冲对象是主要指令缓冲对
 
 \subsection{记录指令到指令缓冲}
 
+我们现在将开始编写recordCommandBuffer函数，该函数将我们要执行的命令写入命令缓冲区。使用的VkCommandBuffer将作为一个参数传递，以及我们要写入的当前交换链图像的索引也作为另一个参数。
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+
+}
+\end{lstlisting}
+
 我们通过调用vkBeginCommandBuffer函数开始指令缓冲的记录操作，这一函数以VkCommandBufferBeginInfo结构体作为参数来指定一些有关指令缓冲的使用细节。
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
