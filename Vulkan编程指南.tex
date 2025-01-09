@@ -7625,7 +7625,7 @@ void initVulkan() {
 
 \subsection{清除值}
 
-现在我们使用了多个使用VK\_ATTACHMENT\_LOAD\_OP\_CLEAR标记的附着，这也意味着我们需要设置多个清除值。在createCommandBuffers函数中添加一个VkClearValue结构体数组：
+现在我们使用了多个使用VK\_ATTACHMENT\_LOAD\_OP\_CLEAR标记的附着，这也意味着我们需要设置多个清除值。在recordCommandBuffer函数中添加一个VkClearValue结构体数组：
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 std::array<VkClearValue, 2> clearValues = {};
