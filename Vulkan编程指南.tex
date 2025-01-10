@@ -3855,6 +3855,13 @@ level成员变量用于指定分配的指令缓冲对象是主要指令缓冲对
 
 \subsection{记录指令到指令缓冲}
 
+我们现在将开始编写recordCommandBuffer函数，该函数将我们要执行的命令写入命令缓冲区。使用的VkCommandBuffer将作为一个参数传递，以及我们要写入的当前交换链图像的索引也作为另一个参数。
+\begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
+void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+
+}
+\end{lstlisting}
+
 我们通过调用vkBeginCommandBuffer函数开始指令缓冲的记录操作，这一函数以VkCommandBufferBeginInfo结构体作为参数来指定一些有关指令缓冲的使用细节。
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
@@ -5113,7 +5120,7 @@ vkUnmapMemory(device, vertexBufferMemory);
 
 \subsection{绑定顶点缓冲}
 
-扩展createCommandBuffers函数，使用顶点缓冲进行渲染操作：
+扩展recordCommandBuffer函数，使用顶点缓冲进行渲染操作：
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 vkCmdBindPipeline(commandBuffers[i],
@@ -5483,7 +5490,7 @@ void cleanup() {
 
 \subsection{使用索引缓冲}
 
-使用索引缓冲进行绘制操作，还需要对我们之前编写的createCommandBuffers函数进行修改。首先我们需要将索引缓冲对象绑定到指令缓冲对象上，这和绑定顶点缓冲基本类似，不同之处是我们只能绑定一个索引缓冲对象。我们不能为每个顶点属性使用不同的索引，所以即使只有一个顶点属性不同，也要在顶点缓冲中多出一个顶点的数据。
+使用索引缓冲进行绘制操作，还需要对我们之前编写的recordCommandBuffer函数进行修改。首先我们需要将索引缓冲对象绑定到指令缓冲对象上，这和绑定顶点缓冲基本类似，不同之处是我们只能绑定一个索引缓冲对象。我们不能为每个顶点属性使用不同的索引，所以即使只有一个顶点属性不同，也要在顶点缓冲中多出一个顶点的数据。
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
@@ -6041,7 +6048,7 @@ vkUpdateDescriptorSets函数可以接受两个数组作为参数：VkWriteDescri
 
 \subsection{使用描述符集}
 
-现在修改createCommandBuffers函数为每个交换链图像绑定对应的描述符集。这需要调用cmdBindDescriptorSets函数来完成，我们在调用vkCmdDrawIndexed函数之前调用这一函数：
+现在修改recordCommandBuffer函数为每个交换链图像绑定对应的描述符集。这需要调用cmdBindDescriptorSets函数来完成，我们在调用vkCmdDrawIndexed函数之前调用这一函数：
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 vkCmdBindDescriptorSets(commandBuffers[i],
@@ -7618,7 +7625,7 @@ void initVulkan() {
 
 \subsection{清除值}
 
-现在我们使用了多个使用VK\_ATTACHMENT\_LOAD\_OP\_CLEAR标记的附着，这也意味着我们需要设置多个清除值。在createCommandBuffers函数中添加一个VkClearValue结构体数组：
+现在我们使用了多个使用VK\_ATTACHMENT\_LOAD\_OP\_CLEAR标记的附着，这也意味着我们需要设置多个清除值。在recordCommandBuffer函数中添加一个VkClearValue结构体数组：
 
 \begin{lstlisting}[language={[ANSI]C},keywordstyle=\color{blue!70},commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\small,numbers=left, numberstyle=\tiny,breaklines=true]
 std::array<VkClearValue, 2> clearValues = {};
