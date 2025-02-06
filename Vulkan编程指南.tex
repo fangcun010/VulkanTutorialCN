@@ -4596,11 +4596,6 @@ return;
 } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 throw std::runtime_error("failed to acquire swap chain image!");
 }
-recreateSwapChain();
-return;
-} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-throw std::runtime_error("failed to acquire swap chain image!");
-}
 \end{lstlisting}
 
 当交换链过期时，我们就不能再使用它，必须重建交换链。
